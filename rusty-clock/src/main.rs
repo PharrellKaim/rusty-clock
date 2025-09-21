@@ -1,4 +1,4 @@
-use eframe::egui;
+use eframe::{egui, NativeOptions};
 use chrono::{Local, DateTime};
 use std::{fs, time::Duration};
 
@@ -19,6 +19,7 @@ impl Default for RustyClock {
 impl eframe::App for RustyClock {
     fn update(&mut self, ctx: &egui::Context, _: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui|{
+            
             ui.heading("🕒 Rusty Clock – Time Tracker");
 
             if self.start_time.is_none() {
@@ -100,10 +101,12 @@ impl eframe::App for RustyClock {
 }
 
 fn main() -> eframe::Result<()> {
-    let options = eframe::NativeOptions::default();
     eframe::run_native(
         "Rusty Clock - Time Tracker",
-        options,
-        Box::new(|_cc| Box::new(RustyClock::default())),
+        eframe::NativeOptions{
+            viewport: egui::ViewportBuilder::default().with_inner_size([800.0,600.0]),
+            ..Default::default()
+        },
+        Box::new(|_cc| Ok(Box::new(RustyClock::default())))
     )
 }
