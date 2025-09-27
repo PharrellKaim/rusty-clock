@@ -12,7 +12,7 @@ pub fn show(ctx: &egui::Context, app: &mut RustyClock) {
                     let todays_sessions: Vec<_> = app
                         .log
                         .iter()
-                        .filter(|(s, _)| s.date_naive() == today)
+                        .filter(|(s, _, _)| s.date_naive() == today)
                         .collect();
 
                     let json = serde_json::to_string_pretty(&todays_sessions).unwrap();

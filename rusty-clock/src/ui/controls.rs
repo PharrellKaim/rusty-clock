@@ -10,12 +10,14 @@ pub fn show(ctx: &egui::Context, app: &mut RustyClock) {
             if app.start_time.is_none() {
                 if ui.button("Start").clicked() {
                     app.start_time = Some(chrono::Local::now());
+                    app.current_description = String::new();
                 }
             } else {
                 if ui.button("Stop").clicked() {
                     if let Some(start) = app.start_time.take() {
                         let end = chrono::Local::now();
-                        app.log.push((start, end));
+                        let description = std::mem::take(&mut app.current_description);
+                        app.log.push((start, end, description));
 
                         let json = serde_json::to_string(&app.log).unwrap();
                         std::fs::write("./timelog.json", json).unwrap();
@@ -40,7 +42,7 @@ pub fn show(ctx: &egui::Context, app: &mut RustyClock) {
                     let today = chrono::Local::now().date_naive();
                     let mut today_duration = chrono::Duration::zero();
 
-                    for (s, e) in &app.log {
+                    for (s, e, _d) in &app.log {
                         if s.date_naive() == today {
                             today_duration = today_duration + (*e - *s);
                         }
@@ -57,6 +59,12 @@ pub fn show(ctx: &egui::Context, app: &mut RustyClock) {
 
                     ui.label(format!("📊 Total today: {:02}:{:02}:{:02}", h_total, m_total, s_total));
                 });
+
+                ui.separator();
+                ui.label("Task: ");
+                ui.add(egui::TextEdit::singleline(&mut app.current_description)
+                    .hint_text("Describe your Task here")
+                    .desired_width(200.0));
 
                 ctx.request_repaint();
             }
