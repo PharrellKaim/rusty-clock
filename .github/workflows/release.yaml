@@ -22,6 +22,7 @@ jobs:
 
       # Build release
       - name: Build release
+        working-directory: ./rusty-clock
         run: cargo build --release
 
       # Create GitHub Release
