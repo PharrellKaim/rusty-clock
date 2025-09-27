@@ -17,7 +17,10 @@ pub fn show(ctx: &egui::Context, app: &mut RustyClock) {
                     if let Some(start) = app.start_time.take() {
                         let end = chrono::Local::now();
                         let description = std::mem::take(&mut app.current_description);
-                        app.log.push((start, end, description));
+                        let elapsed_duration: chrono::Duration = end - start;
+                        let elapsed_seconds = elapsed_duration.num_seconds() as f64;
+                        let duration_hours = elapsed_seconds / 3600.0;
+                        app.log.push((start, end, description, duration_hours));
 
                         let json = serde_json::to_string(&app.log).unwrap();
                         std::fs::write("./timelog.json", json).unwrap();
@@ -42,7 +45,7 @@ pub fn show(ctx: &egui::Context, app: &mut RustyClock) {
                     let today = chrono::Local::now().date_naive();
                     let mut today_duration = chrono::Duration::zero();
 
-                    for (s, e, _d) in &app.log {
+                    for (s, e, _d, _t) in &app.log {
                         if s.date_naive() == today {
                             today_duration = today_duration + (*e - *s);
                         }

@@ -6,7 +6,7 @@ pub fn show(ctx: &egui::Context, app: &mut RustyClock) {
         ui.separator();
         ui.label("Previous Sessions:");
 
-        for (start, end, description) in &app.log {
+        for (start, end, description, _time_worked) in &app.log {
             let duration = *end - *start;
             let seconds = duration.num_seconds();
             let hours = seconds / 3600;
