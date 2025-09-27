@@ -20,37 +20,16 @@ jobs:
           override: true
           profile: minimal
 
-      - name: Get short commit hash
-        id: vars
-        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
-      - name: Create Git tag
-        run: |
-          TAG="v1.0.0-${SHORT_SHA}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag $TAG
-          git push https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git $TAG
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
       # Build release
       - name: Build release
         run: cargo build --release
 
       # Create GitHub Release
       - name: Create GitHub Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      # Upload binary
-      - name: Upload binary
         uses: softprops/action-gh-release@v1
         with:
           files: target/release/rusty-clock
+          generate_release_notes: true
+          tag_name: ${{ github.run_number}}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
