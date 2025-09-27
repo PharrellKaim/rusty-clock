@@ -19,6 +19,7 @@ jobs:
           profile: minimal
 
       - name: Build release
+        working-directory: ./rusty-clock
         run: cargo build --release
 
       - name: Create Github Release
