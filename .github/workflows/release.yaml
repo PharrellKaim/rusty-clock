@@ -6,30 +6,57 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-release:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 
 
+      # Rust Toolchain
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
           profile: minimal
 
+      # Determine next version tag
+      - name: Get next version
+        id: version
+        run: |
+          latest_tag=$(git tag --sort=-v:refname | head -n1)
+          if [ -z "$latest_tag" ]; then
+            next_tag="v1.0.0"
+          else
+            IFS='.' read -r major minor patch <<<"${latest_tag#v}"
+            patch=$((patch + 1))
+            next_tag="v${major}.${minor}.${patch}"
+          fi
+          echo "Next tag: $next_tag"
+          echo "next_tag=$next_tag" >> $GITHUB_ENV
+
+      # Create Git tag
+      - name: Create Git tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag ${{ env.next_tag }}
+          git push origin ${{ env.next_tag }}
+
+      # Build release
       - name: Build release
-        working-directory: ./rusty-clock
         run: cargo build --release
 
-      - name: Create Github Release
-        id: create_release
+      # Create GitHub Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v1.0.0
+          tag_name: ${{ env.next_tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
+      # Upload binary
       - name: Upload binary
         uses: softprops/action-gh-release@v1
         with:
