@@ -3,17 +3,15 @@ name: Build and Release RustyClock binary
 on:
   push:
     branches:
-    - main
+      - main
 
 jobs:
   build:
     runs-on: macos-latest
 
     steps:
-      #1. checkout repo
       - uses: actions/checkout@v3
 
-      #2. Install Rust
       - uses: actions-rs/toolchain@v3
         with:
           toolchain: stable
@@ -22,9 +20,18 @@ jobs:
 
       - name: Build release
         run: cargo build --release
-      
+
       - name: Create Github Release
-          id: create_release
-          uses: softprops/action-gh-release@v1
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-
+      - name: Upload binary
+        uses: softprops/action-gh-release@v1
+        with:
+          files: target/release/rusty-clock
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
