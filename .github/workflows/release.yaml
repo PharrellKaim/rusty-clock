@@ -19,11 +19,14 @@ jobs:
           toolchain: stable
           override: true
           profile: minimal
+      
+      - name: Install cargo-bundle
+        run: cargo install cargo-bundle
 
       # Build release
-      - name: Build release
+      - name: Build .app bundle
         working-directory: ./rusty-clock
-        run: cargo build --release
+        run: cargo bundle --release --target-dir target
 
       # Create GitHub Release
       - name: Create GitHub Release
