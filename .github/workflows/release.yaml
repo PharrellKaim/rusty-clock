@@ -26,7 +26,7 @@ jobs:
       # Build release
       - name: Build .app bundle
         working-directory: ./rusty-clock
-        run: cargo bundle --release --target-dir target
+        run: cargo bundle --release
 
       # Create GitHub Release
       - name: Create GitHub Release
